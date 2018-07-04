@@ -14,6 +14,7 @@ find_package(catkin REQUIRED
              pluginlib
              cmake_modules
              geometric_shapes
+	     tf
 )
 
 find_package(Boost REQUIRED system filesystem date_time thread)
@@ -24,8 +25,9 @@ catkin_package(
     moveit_core
     moveit_ros_planning_interface
     interactive_markers
+    tf
 )
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 find_package(kinova_driver REQUIRED)
 

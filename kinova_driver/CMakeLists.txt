@@ -14,6 +14,7 @@ find_package(catkin REQUIRED dynamic_reconfigure COMPONENTS
   interactive_markers
   visualization_msgs
 )
+
 generate_dynamic_reconfigure_options(
   #cfg/KinovaPositionConfig.cfg
 )

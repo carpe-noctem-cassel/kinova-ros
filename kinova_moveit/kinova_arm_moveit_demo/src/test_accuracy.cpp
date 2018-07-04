@@ -2,8 +2,9 @@
 
 #include <test_accuracy.h>
 #include <ros/console.h>
-
+#include <tf/tf.h>
 #include <tf_conversions/tf_eigen.h>
+#include <eigen_conversions/eigen_msg.h>
 
 const double FINGER_MAX = 6400;
 
@@ -59,8 +60,8 @@ PickPlace::PickPlace(ros::NodeHandle &nh):
 //    robot_state::RobotState& robot_state = planning_scene_->getCurrentStateNonConst();
 //    const robot_state::JointModelGroup *joint_model_group = robot_state.getJointModelGroup("arm");
 
-    group_ = new moveit::planning_interface::MoveGroup("arm");
-    gripper_group_ = new moveit::planning_interface::MoveGroup("gripper");
+    group_ = new moveit::planning_interface::MoveGroupInterface("arm");
+    gripper_group_ = new moveit::planning_interface::MoveGroupInterface("gripper");
 
     group_->setEndEffectorLink(robot_type_ + "_end_effector");
 
@@ -638,12 +639,12 @@ void PickPlace::check_constrain()
     }
 }
 
-void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroup &group)
+void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroupInterface &group)
 {
     bool replan = true;
     int count = 0;
 
-    moveit::planning_interface::MoveGroup::Plan my_plan;
+    moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
     while (replan == true && ros::ok())
     {
@@ -659,7 +660,7 @@ void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroup &group)
             plan_time = 20+count*10;
             ROS_INFO("Setting plan time to %f sec", plan_time);
             group.setPlanningTime(plan_time);
-            result_ = group.plan(my_plan);
+            result_ = (group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
             std::cout << "at attemp: " << count << std::endl;
             ros::WallDuration(0.1).sleep();
         }
@@ -726,11 +727,11 @@ void PickPlace::evaluate_move_accuracy()
     current_state.update();
     Eigen::Affine3d transform = current_state.getGlobalLinkTransform (robot_type_ + "_end_effector");
     geometry_msgs::Pose feeback_pose;
-    tf::poseEigenToMsg(transform,feeback_pose);
+    //TODO FIXME tf::poseEigenToMsg(transform,feeback_pose);
 
     transform = target_state.getGlobalLinkTransform (robot_type_ + "_end_effector");
     geometry_msgs::Pose target_state_pose;
-    tf::poseEigenToMsg(transform,target_state_pose);
+    // TODO FIXME tf::poseEigenToMsg(transform,target_state_pose);
 
 
     std::string error_out,joints_out,torques_out;

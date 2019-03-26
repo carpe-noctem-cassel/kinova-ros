@@ -38,6 +38,9 @@
     <arg name="info" value="true"/>
     <arg name="debug" value="$(arg debug)"/>
   </include>
+  
+  <!-- see https://github.com/ros-industrial/universal_robot/issues/374#issuecomment-411025881 -->
+  <env name="LC_NUMERIC" value="en_US.UTF-8"/>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
   <include file="$(find j2n6s300_moveit_config)/launch/moveit_rviz.launch">

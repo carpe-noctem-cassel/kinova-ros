@@ -47,8 +47,8 @@
     <xacro:property name="joint_base" value="joint_base" />
     <xacro:property name="joint_base_type" value="fixed" />
     <xacro:property name="joint_base_axis_xyz" value="0 0 0" />
-    <xacro:property name="joint_base_origin_xyz" value="0 0 0" />
-    <xacro:property name="joint_base_origin_rpy" value="0 0 0" />
+    <xacro:property name="joint_base_origin_xyz" value="0 0 0.15" />
+    <xacro:property name="joint_base_origin_rpy" value="-1.56 0 0" />
 
     <xacro:property name="joint_1" value="joint_1" />
     <xacro:property name="joint_1_type" value="continuous" />

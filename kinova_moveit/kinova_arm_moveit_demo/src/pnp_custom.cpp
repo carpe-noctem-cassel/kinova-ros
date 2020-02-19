@@ -219,7 +219,56 @@ void PickPlace::build_workscene()
     pub_co_.publish(co_);
     planning_scene_msg_.world.collision_objects.push_back(co_);
     planning_scene_msg_.is_diff = true;
+
+    // remove table2
+    co_.id = "table2";
+    co_.operation = moveit_msgs::CollisionObject::REMOVE;
+    pub_co_.publish(co_);
+
+    // add table2
+    co_.primitives.resize(1);
+    co_.primitive_poses.resize(1);
+    co_.primitives[0].type = shape_msgs::SolidPrimitive::BOX;
+    co_.primitives[0].dimensions.resize(geometric_shapes::SolidPrimitiveDimCount<shape_msgs::SolidPrimitive::BOX>::value);
+    co_.operation = moveit_msgs::CollisionObject::ADD;
+
+    co_.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_X] = 1;
+    co_.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_Y] = 1;
+    co_.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_Z] = 0.8;
+    co_.primitive_poses[0].position.x = 0;
+    co_.primitive_poses[0].position.y = 1.25;
+    co_.primitive_poses[0].position.z = 0.15;
+    pub_co_.publish(co_);
+    planning_scene_msg_.world.collision_objects.push_back(co_);
+
+    //remove target_cylinder
+    co_.id = "target_cylinder2";
+    co_.operation = moveit_msgs::CollisionObject::REMOVE;
+    pub_co_.publish(co_);
+
+    //add target_cylinder
+    co_.primitives.resize(1);
+    co_.primitive_poses.resize(1);
+    co_.primitives[0].type = shape_msgs::SolidPrimitive::CYLINDER;
+    co_.primitives[0].dimensions.resize(geometric_shapes::SolidPrimitiveDimCount<shape_msgs::SolidPrimitive::CYLINDER>::value);
+    co_.operation = moveit_msgs::CollisionObject::ADD;
+
+    co_.primitives[0].dimensions[shape_msgs::SolidPrimitive::CYLINDER_HEIGHT] = 0.5;
+    co_.primitives[0].dimensions[shape_msgs::SolidPrimitive::CYLINDER_RADIUS] = 0.04;
+    co_.primitive_poses[0].position.x = 0.0;
+    co_.primitive_poses[0].position.y = 1;
+    co_.primitive_poses[0].position.z = 0.8;
+    can_pose_.pose.position.x = co_.primitive_poses[0].position.x;
+    can_pose_.pose.position.y = co_.primitive_poses[0].position.y;
+    can_pose_.pose.position.z = co_.primitive_poses[0].position.z;
+    pub_co_.publish(co_);
+    planning_scene_msg_.world.collision_objects.push_back(co_);
+    planning_scene_msg_.is_diff = true;
     pub_planning_scene_diff_.publish(planning_scene_msg_);
+
+    planning_scene_msg_.is_diff = true;
+    pub_planning_scene_diff_.publish(planning_scene_msg_);
+
     ros::WallDuration(0.1).sleep();
     std::cout << "Setup COMPLETE!\n";
 }
@@ -703,7 +752,6 @@ void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroupInterface &gr
 
 bool PickPlace::my_pick()
 {
-    std::cout << "my_pick() called\n";
     clear_workscene();
     ros::WallDuration(1.0).sleep();
     build_workscene();
@@ -719,8 +767,6 @@ bool PickPlace::my_pick()
     gripper_group_->setNamedTarget("Open");
     gripper_group_->move();
 
-    ///////////////////////////////////////////////////////////
-    //// joint space without obstacle
     ///////////////////////////////////////////////////////////
 
     ROS_INFO_STREAM("Joint space motion planing without obstacle");

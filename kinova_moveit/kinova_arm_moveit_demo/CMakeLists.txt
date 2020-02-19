@@ -49,6 +49,10 @@ add_executable(motion_plan src/motion_plan.cpp)
 target_link_libraries(motion_plan ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
 install(TARGETS motion_plan DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+add_executable(test_mp src/test_mp.cpp)
+target_link_libraries(test_mp ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
+install(TARGETS test_mp DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 add_executable(work_scene src/work_scene.cpp)
 target_link_libraries(work_scene ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
 install(TARGETS work_scene DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
@@ -61,6 +65,9 @@ add_executable(test_accuracy src/test_accuracy.cpp include/test_accuracy.h)
 target_link_libraries(test_accuracy ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
 install(TARGETS test_accuracy DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+add_executable(pnp src/pnp_custom.cpp include/pick_place.h)
+target_link_libraries(pnp ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
+install(TARGETS pnp DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 #get_cmake_property(_variableNames VARIABLES)
 #foreach (_variableName ${_variableNames})

@@ -25,11 +25,6 @@ tf::Quaternion EulerZYZ_to_Quaternion(double tz1, double ty, double tz2) {
 }
 
 PickPlace::PickPlace(ros::NodeHandle &nh) : nh_(nh) {
-    //    if(ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,
-    //    ros::console::levels::Debug))
-    //    {
-    //        ros::console::notifyLoggerLevelsChanged();
-    //    }
     std::cout << "PP Constructor called\n";
 
     ros::NodeHandle pn("~");
@@ -179,7 +174,7 @@ void PickPlace::build_workscene() {
     co_.header.stamp = ros::Time::now();
 
     replaceObject(co_, pub_co_, planning_scene_msg_, "floor", shape_msgs::SolidPrimitive::BOX, Position(0, 0, -0.03 / 2.0), {2.4, 2.4, 0.03});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "table", shape_msgs::SolidPrimitive::BOX, Position(0, 0.9, 0.15), {1, 1, 0.8});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "table", shape_msgs::SolidPrimitive::BOX, Position(0, 0.9, 0.5), {1, 1, 0.1});
     replaceObject(co_, pub_co_, planning_scene_msg_, "cup", shape_msgs::SolidPrimitive::CYLINDER, Position(0, 0.65, 0.6), {0.1, 0.04});
 
 //    can_pose_.pose.position.x = co_.primitive_poses[0].position.x;
@@ -382,19 +377,19 @@ void PickPlace::define_cartesian_pose() {
 
     // Euler_ZYZ (-M_PI/4, M_PI/2, M_PI/2)
     grasp_pose_.pose.position.x = 0.0;
-    grasp_pose_.pose.position.y = 0.6;
-    grasp_pose_.pose.position.z = 0.3;
+    grasp_pose_.pose.position.y = 0.65;
+    grasp_pose_.pose.position.z = 0.6;
 
-    q = EulerZYZ_to_Quaternion(M_PI / 4, M_PI / 2, M_PI);
-    grasp_pose_.pose.orientation.x = q.x();
-    grasp_pose_.pose.orientation.y = q.y();
-    grasp_pose_.pose.orientation.z = q.z();
-    grasp_pose_.pose.orientation.w = q.w();
+//    q = EulerZYZ_to_Quaternion(M_PI / 4, M_PI / 2, M_PI);
+//    grasp_pose_.pose.orientation.x = q.x();
+//    grasp_pose_.pose.orientation.y = q.y();
+//    grasp_pose_.pose.orientation.z = q.z();
+//    grasp_pose_.pose.orientation.w = q.w();
 
     // generate_pregrasp_pose(double dist, double azimuth, double polar, double
     // rot_gripper_z)
-    grasp_pose_ = generate_gripper_align_pose(grasp_pose_, 0.03999, M_PI / 4, M_PI / 2, M_PI);
-    pregrasp_pose_ = generate_gripper_align_pose(grasp_pose_, 0.1, M_PI / 4, M_PI / 2, M_PI);
+    grasp_pose_ = generate_gripper_align_pose(grasp_pose_, 0.03999, M_PI / 4, M_PI / 2, -M_PI / 2);
+    pregrasp_pose_ = generate_gripper_align_pose(grasp_pose_, 0.1, M_PI / 4, M_PI / 2, -M_PI / 2);
     postgrasp_pose_ = grasp_pose_;
     postgrasp_pose_.pose.position.z = grasp_pose_.pose.position.z + 0.05;
 }
@@ -429,7 +424,7 @@ void PickPlace::define_joint_values() {
 
     //    postgrasp_joint_ = pregrasp_joint_;
     postgrasp_joint_.resize(joint_names_.size());
-    //    getInvK(pregrasp_pose, postgrasp_joint_);
+    //    getInvK(pregrasp_pose, postdefinegrasp_joint_);
     postgrasp_joint_[0] = 144 * M_PI / 180.0;
     postgrasp_joint_[1] = 249 * M_PI / 180.0;
     postgrasp_joint_[2] = 88 * M_PI / 180.0;
@@ -664,56 +659,56 @@ bool PickPlace::my_pick() {
     std::cout << "gripper open" << std::endl;
     ///////////////////////////////////////////////////////////
 
-    ROS_INFO_STREAM("Joint space motion planing without obstacle");
-    ROS_INFO_STREAM("Demonstrates moving robot from one joint position to another");
-    ROS_INFO_STREAM("Planning to go to start pose ...");
+//    ROS_INFO_STREAM("Joint space motion planing without obstacle");
+//    ROS_INFO_STREAM("Demonstrates moving robot from one joint position to another");
+//    ROS_INFO_STREAM("Planning to go to start pose ...");
     group_->setJointValueTarget(start_joint_);
     evaluate_plan(*group_);
-    std::cout << "in Start" << std::endl;
+//    std::cout << "in Start" << std::endl;
 
-    build_workscene();
-    ros::WallDuration(1.0).sleep();
-
-    ROS_INFO_STREAM("Planning to go to pre-grasp joint pose ...");
-    group_->setJointValueTarget(pregrasp_joint_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Approaching grasp position ...");
-    group_->setJointValueTarget(grasp_joint_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Grasping ...");
-    gripper_action(0.75 * FINGER_MAX); // partially close
-
-    ROS_INFO_STREAM("Planning to go to retract position ...");
-    group_->setJointValueTarget(postgrasp_joint_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Planning to go to start position ...");
-    group_->setJointValueTarget(start_joint_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Releasing ...");
-    gripper_action(0.0); // full open
+//    build_workscene();
+//    ros::WallDuration(1.0).sleep();
+//
+//    ROS_INFO_STREAM("Planning to go to pre-grasp joint pose ...");
+//    group_->setJointValueTarget(pregrasp_joint_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Approaching grasp position ...");
+//    group_->setJointValueTarget(grasp_joint_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Grasping ...");
+//    gripper_action(0.75 * FINGER_MAX); // partially close
+//
+//    ROS_INFO_STREAM("Planning to go to retract position ...");
+//    group_->setJointValueTarget(postgrasp_joint_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Planning to go to start position ...");
+//    group_->setJointValueTarget(start_joint_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Releasing ...");
+//    gripper_action(0.0); // full open
 
     ///////////////////////////////////////////////////////////
     //// joint space with obstacle
     ///////////////////////////////////////////////////////////
-    ROS_INFO_STREAM("*************************");
-    ROS_INFO_STREAM("*************************");
-    ROS_INFO_STREAM("*************************");
-    ROS_INFO_STREAM("Press any key to start motion plan in joint space with obstacle ...");
-    std::cin >> pause_;
-    add_obstacle();
-    group_->setJointValueTarget(pregrasp_joint_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Planning to come back to start position ...");
-    group_->setJointValueTarget(start_joint_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Releasing gripper ...");
-    gripper_action(0.0); // full open
+//    ROS_INFO_STREAM("*************************");
+//    ROS_INFO_STREAM("*************************");
+//    ROS_INFO_STREAM("*************************");
+//    ROS_INFO_STREAM("Press any key to start motion plan in joint space with obstacle ...");
+//    std::cin >> pause_;
+//    add_obstacle();
+//    group_->setJointValueTarget(pregrasp_joint_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Planning to come back to start position ...");
+//    group_->setJointValueTarget(start_joint_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Releasing gripper ...");
+//    gripper_action(0.0); // full open
 
     ///////////////////////////////////////////////////////////
     //// Cartesian space without obstacle
@@ -724,13 +719,13 @@ bool PickPlace::my_pick() {
     ROS_INFO_STREAM("Motion planning in cartesian space without obstacles ...");
     clear_workscene();
     build_workscene();
-    add_target();
+    //add_target();
     ros::WallDuration(0.1).sleep();
 
-    ROS_INFO_STREAM("Press any key to move to start pose ...");
-    std::cin >> pause_;
-    group_->setPoseTarget(start_pose_);
-    evaluate_plan(*group_);
+//    ROS_INFO_STREAM("Press any key to move to start pose ...");
+//    std::cin >> pause_;
+//    group_->setPoseTarget(start_pose_);
+//    evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Planning to go to pre-grasp position ...");
     group_->setPoseTarget(pregrasp_pose_);
@@ -745,7 +740,7 @@ bool PickPlace::my_pick() {
     gripper_action(0.75 * FINGER_MAX); // partially close
 
     ROS_INFO_STREAM("Planning to return to start position  ...");
-    group_->setPoseTarget(start_pose_);
+    group_->setPoseTarget(postgrasp_pose_);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Releasing gripper ...");
@@ -755,76 +750,76 @@ bool PickPlace::my_pick() {
     ///////////////////////////////////////////////////////////
     //// Cartesian space with obstacle
     ///////////////////////////////////////////////////////////
-    ROS_INFO_STREAM("*************************");
-    ROS_INFO_STREAM("*************************");
-    ROS_INFO_STREAM("*************************");
-    ROS_INFO_STREAM("Press any key to start motion plan in cartesian space with obstacle ...");
-    std::cin >> pause_;
-    clear_workscene();
-    build_workscene();
-    add_target();
-    add_complex_obstacle();
-    ros::WallDuration(1.0).sleep();
-
-    // ROS_INFO_STREAM("Planning to go to start position ...");
-    // group_->setPoseTarget(start_pose_);
-    // evaluate_plan(*group_);
-
-    ros::WallDuration(0.1).sleep();
-    ROS_INFO_STREAM("Planning to go to pre-grasp position ...");
-    group_->setPoseTarget(pregrasp_pose_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Planning to go to grasp position ...");
-    group_->setPoseTarget(grasp_pose_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Press any key to grasp ...");
-    std::cin >> pause_;
-    add_attached_obstacle();
-    gripper_action(0.75 * FINGER_MAX); // partially close
-
-    ROS_INFO_STREAM("Planning to go to start position  ...");
-    group_->setPoseTarget(start_pose_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Releasing gripper ...");
-    gripper_action(0.0); // full open
-
-    ROS_INFO_STREAM("Press any key to start motion planning with orientation constrains ...");
-    ROS_INFO_STREAM("Constraints are setup so that the robot keeps the target vertical");
-    std::cin >> pause_;
-    clear_workscene();
-    build_workscene();
-    add_target();
-
-    // ROS_INFO_STREAM("Planning to go to start position ...");
-    // group_->setPoseTarget(start_pose_);
-    // evaluate_plan(*group_);
-
-    ros::WallDuration(0.1).sleep();
-    ROS_INFO_STREAM("Planning to go to pre-grasp position ...");
-    group_->setPoseTarget(pregrasp_pose_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Planning to go to grasp position ...");
-    group_->setPoseTarget(grasp_pose_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Press any key to grasp ...");
-    std::cin >> pause_;
-
-    add_attached_obstacle();
-    gripper_action(0.75 * FINGER_MAX); // partially close
-
-    setup_constrain(grasp_pose_.pose, true, false);
-
-    ROS_INFO_STREAM("Planning to go to start position  ...");
-    group_->setPoseTarget(start_pose_);
-    evaluate_plan(*group_);
-
-    ROS_INFO_STREAM("Releasing gripper ...");
-    gripper_action(0.0); // full open
+//    ROS_INFO_STREAM("*************************");
+//    ROS_INFO_STREAM("*************************");
+//    ROS_INFO_STREAM("*************************");
+//    ROS_INFO_STREAM("Press any key to start motion plan in cartesian space with obstacle ...");
+//    std::cin >> pause_;
+//    clear_workscene();
+//    build_workscene();
+//    add_target();
+//    add_complex_obstacle();
+//    ros::WallDuration(1.0).sleep();
+//
+//    // ROS_INFO_STREAM("Planning to go to start position ...");
+//    // group_->setPoseTarget(start_pose_);
+//    // evaluate_plan(*group_);
+//
+//    ros::WallDuration(0.1).sleep();
+//    ROS_INFO_STREAM("Planning to go to pre-grasp position ...");
+//    group_->setPoseTarget(pregrasp_pose_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Planning to go to grasp position ...");
+//    group_->setPoseTarget(grasp_pose_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Press any key to grasp ...");
+//    std::cin >> pause_;
+//    add_attached_obstacle();
+//    gripper_action(0.75 * FINGER_MAX); // partially close
+//
+//    ROS_INFO_STREAM("Planning to go to start position  ...");
+//    group_->setPoseTarget(start_pose_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Releasing gripper ...");
+//    gripper_action(0.0); // full open
+//
+//    ROS_INFO_STREAM("Press any key to start motion planning with orientation constrains ...");
+//    ROS_INFO_STREAM("Constraints are setup so that the robot keeps the target vertical");
+//    std::cin >> pause_;
+//    clear_workscene();
+//    build_workscene();
+//    add_target();
+//
+//    // ROS_INFO_STREAM("Planning to go to start position ...");
+//    // group_->setPoseTarget(start_pose_);
+//    // evaluate_plan(*group_);
+//
+//    ros::WallDuration(0.1).sleep();
+//    ROS_INFO_STREAM("Planning to go to pre-grasp position ...");
+//    group_->setPoseTarget(pregrasp_pose_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Planning to go to grasp position ...");
+//    group_->setPoseTarget(grasp_pose_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Press any key to grasp ...");
+//    std::cin >> pause_;
+//
+//    add_attached_obstacle();
+//    gripper_action(0.75 * FINGER_MAX); // partially close
+//
+//    setup_constrain(grasp_pose_.pose, true, false);
+//
+//    ROS_INFO_STREAM("Planning to go to start position  ...");
+//    group_->setPoseTarget(start_pose_);
+//    evaluate_plan(*group_);
+//
+//    ROS_INFO_STREAM("Releasing gripper ...");
+//    gripper_action(0.0); // full open
 
     //  If need to double check if reach target position.
     //    replacement of group_->getCurrentJointValues();

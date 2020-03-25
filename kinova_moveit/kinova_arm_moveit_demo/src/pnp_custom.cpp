@@ -174,7 +174,21 @@ void PickPlace::build_workscene() {
     co_.header.stamp = ros::Time::now();
 
     replaceObject(co_, pub_co_, planning_scene_msg_, "floor", shape_msgs::SolidPrimitive::BOX, Position(0, 0, -0.03 / 2.0), {2.4, 2.4, 0.03});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "table", shape_msgs::SolidPrimitive::BOX, Position(0, 0.9, 0.5), {1, 1, 0.1});
+
+    double tableX = 0;
+    double tableY = 0.9;
+    double tableEdgeLength = 1;
+    double tableHeight = 0.55;
+    double tableTopHeight = 0.1;
+    double tableLegRadius = 0.1;
+    double tableLegInset = 0.1;
+
+    replaceObject(co_, pub_co_, planning_scene_msg_, "tableTop", shape_msgs::SolidPrimitive::BOX, Position(tableX, tableY, tableHeight - tableTopHeight / 2), {tableEdgeLength, tableEdgeLength, tableTopHeight});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg1", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX + (tableEdgeLength - tableLegInset), tableY + (tableEdgeLength - tableLegInset), (tableHeight - tableTopHeight) / 2, {tableHeight - tableTopHeight, tableLegRadius});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg2", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX + (tableEdgeLength - tableLegInset), tableY - (tableEdgeLength - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg3", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX - (tableEdgeLength - tableLegInset), tableY + (tableEdgeLength - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg4", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX - (tableEdgeLength - tableLegInset), tableY - (tableEdgeLength - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
+
     replaceObject(co_, pub_co_, planning_scene_msg_, "cup", shape_msgs::SolidPrimitive::CYLINDER, Position(0, 0.65, 0.6), {0.1, 0.04});
 
 //    can_pose_.pose.position.x = co_.primitive_poses[0].position.x;

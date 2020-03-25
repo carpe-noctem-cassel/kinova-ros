@@ -180,14 +180,14 @@ void PickPlace::build_workscene() {
     double tableEdgeLength = 1;
     double tableHeight = 0.55;
     double tableTopHeight = 0.1;
-    double tableLegRadius = 0.1;
+    double tableLegRadius = 0.05;
     double tableLegInset = 0.1;
 
     replaceObject(co_, pub_co_, planning_scene_msg_, "tableTop", shape_msgs::SolidPrimitive::BOX, Position(tableX, tableY, tableHeight - tableTopHeight / 2), {tableEdgeLength, tableEdgeLength, tableTopHeight});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg1", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX + (tableEdgeLength - tableLegInset), tableY + (tableEdgeLength - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg2", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX + (tableEdgeLength - tableLegInset), tableY - (tableEdgeLength - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg3", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX - (tableEdgeLength - tableLegInset), tableY + (tableEdgeLength - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg4", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX - (tableEdgeLength - tableLegInset), tableY - (tableEdgeLength - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg1", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX + (tableEdgeLength/2 - tableLegInset), tableY + (tableEdgeLength/2 - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg2", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX + (tableEdgeLength/2 - tableLegInset), tableY - (tableEdgeLength/2 - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg3", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX - (tableEdgeLength/2 - tableLegInset), tableY + (tableEdgeLength/2 - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg4", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX - (tableEdgeLength/2 - tableLegInset), tableY - (tableEdgeLength/2 - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
 
     replaceObject(co_, pub_co_, planning_scene_msg_, "cup", shape_msgs::SolidPrimitive::CYLINDER, Position(0, 0.65, 0.6), {0.1, 0.04});
 

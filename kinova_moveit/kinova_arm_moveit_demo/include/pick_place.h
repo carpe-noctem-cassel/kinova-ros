@@ -36,6 +36,7 @@ namespace kinova
     {
     public:
         PickPlace(ros::NodeHandle &nh);
+        void setup_orientation_constraint(geometry_msgs::Pose target);
         ~PickPlace();
 
 
@@ -79,6 +80,7 @@ namespace kinova
         std::string pause_;
         std::string robot_type_;
         bool robot_connected_;
+        int step;
 
         // update current state and pose
         boost::mutex mutex_state_;
@@ -98,6 +100,7 @@ namespace kinova
         geometry_msgs::PoseStamped can_pose_;
         geometry_msgs::PoseStamped pregrasp_pose_;
         geometry_msgs::PoseStamped postgrasp_pose_;
+        geometry_msgs::PoseStamped transport_pose_;
 
 
         void build_workscene();

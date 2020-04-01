@@ -439,14 +439,14 @@ void PickPlace::check_constrain() {
 }
 
 void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroupInterface &group) {
-    bool replan = true;
+//    bool replan = true;
     int count = 0;
 
     moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
-    while (replan == true && ros::ok()) {
+//    while (/*replan == true && */ros::ok()) {
         // reset flag for replan
-        count = 0;
+//        count = 0;
         result_ = false;
 
         // try to find a success plan.
@@ -457,40 +457,40 @@ void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroupInterface &gr
             ROS_INFO("Setting plan time to %f sec", plan_time);
             group.setPlanningTime(plan_time);
             result_ = (group.plan(my_plan) == moveit_msgs::MoveItErrorCodes::SUCCESS);
-            std::cout << "at attemp: " << count << std::endl;
+            std::cout << "at attempt: " << count << std::endl;
             ros::WallDuration(0.1).sleep();
         }
 
         // found a plan
-        if (result_ == true) {
-            std::cout << "plan success at attemp: " << count << std::endl;
+//        if (result_ == true) {
+//            std::cout << "plan success at attempt: " << count << std::endl;
 
-            replan = false;
-            std::cout << "please input e to execute the plan, r to replan, q to quit, others to skip: ";
-            std::cin >> pause_;
-            ros::WallDuration(0.5).sleep();
+//            replan = false;
+//            std::cout << "please input e to execute the plan, r to replan, q to quit, others to skip: ";
+//            std::cin >> pause_;
+//            ros::WallDuration(0.5).sleep();
 
-            if (pause_ == "r" || pause_ == "R") {
-                replan = true;
-            } else {
-                replan = false;
-            }
+//            if (pause_ == "r" || pause_ == "R") {
+//                replan = true;
+//            } else {
+//                replan = false;
+//            }
 
-            if (pause_ == "q" || pause_ == "Q") {
-                exit(0);
-            }
-        } else // not found
-        {
-            std::cout << "Exit since plan failed until reach maximum attempt: " << count << std::endl;
-            replan = false;
-            break;
-        }
-    }
+//            if (pause_ == "q" || pause_ == "Q") {
+//                exit(0);
+//            }
+//        } else // not found
+//        {
+//            std::cout << "Exit since plan failed until reach maximum attempt: " << count << std::endl;
+//            replan = false;
+//            break;
+//        }
+//    }
 
     if (result_ == true) {
-        if (pause_ == "e" || pause_ == "E") {
+//        if (pause_ == "e" || pause_ == "E") {
             group.execute(my_plan);
-        }
+//        }
     }
     ros::WallDuration(1.0).sleep();
 }

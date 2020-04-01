@@ -582,7 +582,7 @@ void PickPlace::setup_constrain(geometry_msgs::Pose target_pose, bool orientatio
     /* A pose for the box (specified relative to frame_id) */
     geometry_msgs::Pose box_pose;
     box_pose.orientation.w = 1.0;
-    // place between start point and goal point.
+    // place between start group_->setPoseTarget(postgrasp_pose_);point and goal point.
     box_pose.position.x = (target_pose.position.x + current_pose.position.x)/2.0;
     box_pose.position.y = (target_pose.position.y + current_pose.position.y)/2.0;
     box_pose.position.z = (target_pose.position.z + current_pose.position.z)/2.0;

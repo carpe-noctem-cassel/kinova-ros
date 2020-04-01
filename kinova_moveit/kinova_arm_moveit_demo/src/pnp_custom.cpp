@@ -111,6 +111,14 @@ void PickPlace::get_current_pose(const geometry_msgs::PoseStampedConstPtr &msg) 
     current_pose_ = *msg;
 }
 
+void replaceTable(moveit_msgs::CollisionObject &collisionObject, ros::Publisher &pub, moveit_msgs::PlanningScene &planningScene, std::string id = "table", double x = 0, double y = 0.9, double edgeLength = 1, double height = 0.55, double topThickness = 0.1, double legRadius = 0.05, double legInset = 0.1){
+    replaceObject(collisionObject, pub, planningScene, id + "Top", shape_msgs::SolidPrimitive::BOX, Position(x, y, height - topThickness / 2), {edgeLength, edgeLength, topThickness});
+    replaceObject(collisionObject, pub, planningScene, id + "Leg1", shape_msgs::SolidPrimitive::CYLINDER, Position(x + (edgeLength/2 - legInset), y + (edgeLength/2 - legInset), (height - topThickness) / 2), {height - topThickness, legRadius});
+    replaceObject(collisionObject, pub, planningScene, id + "Leg2", shape_msgs::SolidPrimitive::CYLINDER, Position(x + (edgeLength/2 - legInset), y - (edgeLength/2 - legInset), (height - topThickness) / 2), {height - topThickness, legRadius});
+    replaceObject(collisionObject, pub, planningScene, id + "Leg3", shape_msgs::SolidPrimitive::CYLINDER, Position(x - (edgeLength/2 - legInset), y + (edgeLength/2 - legInset), (height - topThickness) / 2), {height - topThickness, legRadius});
+    replaceObject(collisionObject, pub, planningScene, id + "Leg4", shape_msgs::SolidPrimitive::CYLINDER, Position(x - (edgeLength/2 - legInset), y - (edgeLength/2 - legInset), (height - topThickness) / 2), {height - topThickness, legRadius});
+}
+
 /**
  * @brief PickPlace::gripper_action
  * @param gripper_rad close for 6400 and open for 0.0
@@ -178,19 +186,9 @@ void PickPlace::build_workscene() {
 
     replaceObject(co_, pub_co_, planning_scene_msg_, "floor", shape_msgs::SolidPrimitive::BOX, Position(0, 0, -0.03 / 2.0), {2.4, 2.4, 0.03});
 
-    double tableX = 0;
-    double tableY = 0.9;
-    double tableEdgeLength = 1;
-    double tableHeight = 0.55;
-    double tableTopHeight = 0.1;
-    double tableLegRadius = 0.05;
-    double tableLegInset = 0.1;
+    replaceTable(co_, pub_co_, planning_scene_msg_);
 
-    replaceObject(co_, pub_co_, planning_scene_msg_, "tableTop", shape_msgs::SolidPrimitive::BOX, Position(tableX, tableY, tableHeight - tableTopHeight / 2), {tableEdgeLength, tableEdgeLength, tableTopHeight});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg1", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX + (tableEdgeLength/2 - tableLegInset), tableY + (tableEdgeLength/2 - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg2", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX + (tableEdgeLength/2 - tableLegInset), tableY - (tableEdgeLength/2 - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg3", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX - (tableEdgeLength/2 - tableLegInset), tableY + (tableEdgeLength/2 - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
-    replaceObject(co_, pub_co_, planning_scene_msg_, "tableLeg4", shape_msgs::SolidPrimitive::CYLINDER, Position(tableX - (tableEdgeLength/2 - tableLegInset), tableY - (tableEdgeLength/2 - tableLegInset), (tableHeight - tableTopHeight) / 2), {tableHeight - tableTopHeight, tableLegRadius});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "laser", shape_msgs::SolidPrimitive::CYLINDER, Position(-0.05, 0, 0.3), {0.2, 0.1});
 
     replaceObject(co_, pub_co_, planning_scene_msg_, "cup", shape_msgs::SolidPrimitive::CYLINDER, Position(0, 0.65, 0.6), {0.1, 0.04});
 
@@ -311,8 +309,8 @@ void PickPlace::define_cartesian_pose() {
     transport_pose_.header.frame_id = "root";
     transport_pose_.header.stamp = ros::Time::now();
     transport_pose_.pose.position.x = 0.0;
-    transport_pose_.pose.position.y = 0.3;
-    transport_pose_.pose.position.z = 0.5;
+    transport_pose_.pose.position.y = 0.65;
+    transport_pose_.pose.position.z = 0.75;
 
     q = EulerZYZ_to_Quaternion(M_PI / 4, M_PI / 2, -M_PI / 2);
     transport_pose_.pose.orientation.x = q.x();
@@ -534,14 +532,14 @@ bool PickPlace::my_pick() {
     add_attached_obstacle();
     gripper_action(0.75 * FINGER_MAX); // partially close
 
-    setup_orientation_constraint(postgrasp_pose_.pose);
+//    setup_orientation_constraint(postgrasp_pose_.pose);
 
     ROS_INFO_STREAM("Planning to return to start position  ...");
     group_->setPoseTarget(postgrasp_pose_);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Retruning to start pose ...");
-    setup_orientation_constraint(transport_pose_.pose);
+//    setup_orientation_constraint(transport_pose_.pose);
     group_->setPoseTarget(transport_pose_);
     evaluate_plan(*group_);
 

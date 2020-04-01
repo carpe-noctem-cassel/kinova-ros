@@ -445,60 +445,28 @@ void PickPlace::check_constrain() {
 }
 
 void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroupInterface &group) {
-//    bool replan = true;
     int count = 0;
-
     moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+    result_ = false;
 
-//    while (/*replan == true && */ros::ok()) {
-        // reset flag for replan
-//        count = 0;
-        result_ = false;
-
-        // try to find a success plan.
-        double plan_time;
-        while (result_ == false && count < 5) {
-            count++;
-            plan_time = 20 + count * 10;
-            ROS_INFO("Setting plan time to %f sec", plan_time);
-            group.setPlanningTime(plan_time);
-            result_ = (group.plan(my_plan) == moveit_msgs::MoveItErrorCodes::SUCCESS);
-            std::cout << "at attempt: " << count << std::endl;
-            ros::WallDuration(0.1).sleep();
-        }
-
-        // found a plan
-//        if (result_ == true) {
-//            std::cout << "plan success at attempt: " << count << std::endl;
-
-//            replan = false;
-//            std::cout << "please input e to execute the plan, r to replan, q to quit, others to skip: ";
-//            std::cin >> pause_;
-//            ros::WallDuration(0.5).sleep();
-
-//            if (pause_ == "r" || pause_ == "R") {
-//                replan = true;
-//            } else {
-//                replan = false;
-//            }
-
-//            if (pause_ == "q" || pause_ == "Q") {
-//                exit(0);
-//            }
-//        } else // not found
-//        {
-//            std::cout << "Exit since plan failed until reach maximum attempt: " << count << std::endl;
-//            replan = false;
-//            break;
-//        }
-//    }
+    // try to find a success plan.
+    double plan_time;
+    while (result_ == false && count < 5) {
+        count++;
+        plan_time = 20 + count * 10;
+        ROS_INFO("Setting plan time to %f sec", plan_time);
+        group.setPlanningTime(plan_time);
+        result_ = (group.plan(my_plan) == moveit_msgs::MoveItErrorCodes::SUCCESS);
+        std::cout << "at attempt: " << count << std::endl;
+        ros::WallDuration(0.1).sleep();
+    }
 
     if (result_ == true) {
-//        if (pause_ == "e" || pause_ == "E") {
-            group.execute(my_plan);
-//        }
+        group.execute(my_plan);
+        ros::WallDuration(1.0).sleep();
+    } else {
+        std::cerr << "Exit since plan failed until reach maximum attempt: " << count << std::endl;
     }
-    ros::WallDuration(1.0).sleep();
 }
 
 void PickPlace::setup_orientation_constraint(geometry_msgs::Pose target){

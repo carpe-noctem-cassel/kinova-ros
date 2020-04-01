@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <pick_place.h>
 #include <ros/console.h>
 #include <string>
@@ -8,6 +9,11 @@
 const double FINGER_MAX = 6400;
 
 using namespace kinova;
+
+void ctrlc_handler(int s){
+    std::cout << "Exiting because Ctrl-C\n";
+    exit(1);
+}
 
 tf::Quaternion EulerZYZ_to_Quaternion(double tz1, double ty, double tz2) {
     tf::Quaternion q;
@@ -309,9 +315,9 @@ void PickPlace::define_cartesian_pose() {
 
     transport_pose_.header.frame_id = "root";
     transport_pose_.header.stamp = ros::Time::now();
-    transport_pose_.pose.position.x = 0.0;
-    transport_pose_.pose.position.y = 0.65;
-    transport_pose_.pose.position.z = 0.75;
+    transport_pose_.pose.position.x = 0.2;
+    transport_pose_.pose.position.y = 0.5;
+    transport_pose_.pose.position.z = 0.5;
 
     q = EulerZYZ_to_Quaternion(M_PI / 4, M_PI / 2, -M_PI / 2);
     transport_pose_.pose.orientation.x = q.x();
@@ -324,7 +330,7 @@ void PickPlace::define_cartesian_pose() {
     grasp_pose_ = generate_gripper_align_pose(grasp_pose_, 0.04, M_PI / 4, M_PI / 2, -M_PI / 2);
     pregrasp_pose_ = generate_gripper_align_pose(grasp_pose_, 0.1, M_PI / 4, M_PI / 2, -M_PI / 2);
     postgrasp_pose_ = grasp_pose_;
-    postgrasp_pose_.pose.position.z = grasp_pose_.pose.position.z + 0.05;
+    postgrasp_pose_.pose.position.z = grasp_pose_.pose.position.z + 0.15;
 }
 
 void PickPlace::define_joint_values() {
@@ -525,6 +531,8 @@ bool PickPlace::my_pick() {
     group_->setPoseTarget(pregrasp_pose_);
     evaluate_plan(*group_);
 
+    ROS_INFO_STREAM("Opening gripper ...");
+    gripper_action(0.0);
     ROS_INFO_STREAM("Approaching grasp position ...");
     group_->setPoseTarget(grasp_pose_);
     evaluate_plan(*group_);
@@ -533,14 +541,15 @@ bool PickPlace::my_pick() {
     add_attached_obstacle();
     gripper_action(0.75 * FINGER_MAX); // partially close
 
-//    setup_orientation_constraint(postgrasp_pose_.pose);
+    replaceTable(co_, pub_co_, planning_scene_msg_,"table", 0, 1.5);
 
+    setup_orientation_constraint(postgrasp_pose_.pose);
     ROS_INFO_STREAM("Planning to return to start position  ...");
     group_->setPoseTarget(postgrasp_pose_);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Retruning to start pose ...");
-//    setup_orientation_constraint(transport_pose_.pose);
+    setup_orientation_constraint(transport_pose_.pose);
     group_->setPoseTarget(transport_pose_);
     evaluate_plan(*group_);
 
@@ -561,6 +570,9 @@ void PickPlace::getInvK(geometry_msgs::Pose &eef_pose,
 }
 
 int main(int argc, char **argv) {
+
+    signal (SIGINT,ctrlc_handler);
+
     ros::init(argc, argv, "pick_place_demo");
     ros::NodeHandle node;
     ros::AsyncSpinner spinner(1);

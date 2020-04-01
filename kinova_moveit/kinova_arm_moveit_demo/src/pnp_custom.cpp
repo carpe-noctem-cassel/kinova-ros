@@ -117,7 +117,7 @@ void replaceTable(moveit_msgs::CollisionObject &collisionObject, ros::Publisher 
     replaceObject(collisionObject, pub, planningScene, id + "Leg2", shape_msgs::SolidPrimitive::CYLINDER, Position(x + (edgeLength/2 - legInset), y - (edgeLength/2 - legInset), (height - topThickness) / 2), {height - topThickness, legRadius});
     replaceObject(collisionObject, pub, planningScene, id + "Leg3", shape_msgs::SolidPrimitive::CYLINDER, Position(x - (edgeLength/2 - legInset), y + (edgeLength/2 - legInset), (height - topThickness) / 2), {height - topThickness, legRadius});
     replaceObject(collisionObject, pub, planningScene, id + "Leg4", shape_msgs::SolidPrimitive::CYLINDER, Position(x - (edgeLength/2 - legInset), y - (edgeLength/2 - legInset), (height - topThickness) / 2), {height - topThickness, legRadius});
-    replaceObject(collisionObject, pub, planningScene, id + "Shield", shape_msgs::SolidPrimitive::CYLINDER, Position(x - edgeLength/2 + shieldThickness/2, y, (height - topThickness) / 2), {shieldThickness, (height - topThickness - 0.01), edgeLength - 2*legInset - 4*legRadius - 0.01});
+    replaceObject(collisionObject, pub, planningScene, id + "Shield", shape_msgs::SolidPrimitive::BOX, Position(x, y - edgeLength/2 + shieldThickness/2, (height - topThickness) / 2), {edgeLength - 2*legInset - 4*legRadius - 0.01, shieldThickness, (height - topThickness - 0.01)});
 }
 
 /**

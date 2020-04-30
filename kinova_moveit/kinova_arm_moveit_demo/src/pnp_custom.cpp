@@ -3,6 +3,7 @@
 #include <ros/console.h>
 #include <string>
 #include "object_factory.h"
+#include <iostream>
 
 #include <tf_conversions/tf_eigen.h>
 
@@ -10,8 +11,7 @@ const double FINGER_MAX = 6400;
 
 using namespace kinova;
 
-void ctrlc_handler(int s){
-    std::cout << "Exiting because Ctrl-C\n";
+void ctlc_handler(int sig){
     exit(1);
 }
 
@@ -95,8 +95,6 @@ PickPlace::PickPlace(ros::NodeHandle &nh) : nh_(nh) {
 
 PickPlace::~PickPlace() {
     // shut down pub and subs
-    // sub_joint_.shutdown();
-    // sub_pose_.shutdown();
     pub_co_.shutdown();
     pub_aco_.shutdown();
     pub_planning_scene_diff_.shutdown();
@@ -197,11 +195,11 @@ void PickPlace::build_workscene() {
 
     replaceObject(co_, pub_co_, planning_scene_msg_, "laser", shape_msgs::SolidPrimitive::CYLINDER, Position(-0.05, 0, 0.3), {0.2, 0.1});
 
-    replaceObject(co_, pub_co_, planning_scene_msg_, "cup", shape_msgs::SolidPrimitive::CYLINDER, Position(0, 0.65, 0.6), {0.1, 0.04});
+    std::cout << "Cup placement(x y): ";
+    std::cin >> cup_x >> cup_y;
 
-//    can_pose_.pose.position.x = co_.primitive_poses[0].position.x;
-//    can_pose_.pose.position.y = co_.primitive_poses[0].position.y;
-//    can_pose_.pose.position.z = co_.primitive_poses[0].position.z;
+    replaceObject(co_, pub_co_, planning_scene_msg_, "cup", shape_msgs::SolidPrimitive::CYLINDER, Position(cup_x, 0.65 + cup_y, 0.6), {0.1, 0.04});
+
 
     ros::WallDuration(0.1).sleep();
     std::cout << "Setup COMPLETE!\n";
@@ -309,8 +307,8 @@ void PickPlace::define_cartesian_pose() {
     grasp_pose_.header.stamp = ros::Time::now();
 
     // Euler_ZYZ (-M_PI/4, M_PI/2, M_PI/2)
-    grasp_pose_.pose.position.x = 0.0;
-    grasp_pose_.pose.position.y = 0.65;
+    grasp_pose_.pose.position.x = 0.0 + cup_x;
+    grasp_pose_.pose.position.y = 0.65+ cup_y;
     grasp_pose_.pose.position.z = 0.6;
 
     transport_pose_.header.frame_id = "root";
@@ -539,7 +537,7 @@ void PickPlace::getInvK(geometry_msgs::Pose &eef_pose,
 
 int main(int argc, char **argv) {
 
-    signal (SIGINT,ctrlc_handler);
+    signal(SIGINT, ctlc_handler);
 
     ros::init(argc, argv, "pick_place_demo");
     ros::NodeHandle node;

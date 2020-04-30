@@ -81,6 +81,7 @@ namespace kinova
         std::string robot_type_;
         bool robot_connected_;
         int step;
+        int cup_x, cup_y;
 
         // update current state and pose
         boost::mutex mutex_state_;
@@ -127,6 +128,7 @@ namespace kinova
         void check_collision();
         void evaluate_plan(moveit::planning_interface::MoveGroupInterface &group);
         bool gripper_action(double gripper_rad);
+        void quit(int s);
     };
 }
 

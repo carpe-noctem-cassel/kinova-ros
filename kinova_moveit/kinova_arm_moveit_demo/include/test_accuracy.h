@@ -97,10 +97,10 @@ namespace kinova
         std::vector<double> postgrasp_joint_;
 
         geometry_msgs::PoseStamped start_pose_;
-        geometry_msgs::PoseStamped grasp_pose_;
+        geometry_msgs::PoseStamped grasp_pose;
         geometry_msgs::PoseStamped can_pose_;
-        geometry_msgs::PoseStamped pregrasp_pose_;
-        geometry_msgs::PoseStamped postgrasp_pose_;
+        geometry_msgs::PoseStamped pregrasp_pose;
+        geometry_msgs::PoseStamped postgrasp_pose;
 
         bool cartesian_move_;
         std::ofstream o_file_;

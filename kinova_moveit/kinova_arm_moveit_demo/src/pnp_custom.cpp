@@ -15,6 +15,7 @@ void ctlc_handler(int sig){
     exit(1);
 }
 
+// TODO: Existiert eine umwandlung von Zxz nach Quaternion?
 tf::Quaternion EulerZYZ_to_Quaternion(double tz1, double ty, double tz2) {
     tf::Quaternion q;
     tf::Matrix3x3 rot;
@@ -23,7 +24,7 @@ tf::Quaternion EulerZYZ_to_Quaternion(double tz1, double ty, double tz2) {
 
     rot_temp.setEulerYPR(tz1, 0.0, 0.0);
     rot *= rot_temp;
-    rot_temp.setEulerYPR(0.0, ty, 0.0);
+    rot_temp.setEulerYPR(0.0, ty, 0.0); // Dritter WErt für zxz
     rot *= rot_temp;
     rot_temp.setEulerYPR(tz2, 0.0, 0.0);
     rot *= rot_temp;
@@ -198,7 +199,7 @@ void PickPlace::build_workscene() {
     std::cout << "Cup placement(x y): ";
     std::cin >> cup_x >> cup_y;
 
-    replaceObject(co_, pub_co_, planning_scene_msg_, "cup", shape_msgs::SolidPrimitive::CYLINDER, Position(cup_x, 0.65 + cup_y, 0.6), {0.1, 0.04});
+    replaceObject(co_, pub_co_, planning_scene_msg_, "cup", shape_msgs::SolidPrimitive::CYLINDER, Position(cup_x, 0.65 + cup_y, 0.6), {0.1, 0.01});
 
 
     ros::WallDuration(0.1).sleep();
@@ -227,6 +228,7 @@ void PickPlace::clear_obstacle() {
     //      remove pole "); std::cin >> pause_;
 }
 
+// TODO: best way to attach?
 void PickPlace::add_attached_obstacle() {
      //once the object is know to be grasped
      //we remove obstacle from work scene
@@ -248,126 +250,45 @@ void PickPlace::add_attached_obstacle() {
     pub_aco_.publish(aco_);
 }
 
-void PickPlace::check_collision() {
-    collision_detection::CollisionRequest collision_request;
-    collision_detection::CollisionResult collision_result;
-    collision_request.contacts = true;
-    collision_request.max_contacts = 1000;
-
-    collision_result.clear();
-    planning_scene_->checkCollision(collision_request, collision_result);
-    ROS_INFO_STREAM("Test 1: Current state is " << (collision_result.collision ? "in" : "not in") << " collision");
-
-    collision_request.group_name = "arm";
-    collision_result.clear();
-    planning_scene_->checkCollision(collision_request, collision_result);
-    ROS_INFO_STREAM("Test 3: Current state is " << (collision_result.collision ? "in" : "not in") << " collision");
-
-    // check contact
-    planning_scene_->checkCollision(collision_request, collision_result);
-    ROS_INFO_STREAM("Test 4: Current state is " << (collision_result.collision ? "in" : "not in") << " collision");
-    collision_detection::CollisionResult::ContactMap::const_iterator it;
-    for (it = collision_result.contacts.begin();
-         it != collision_result.contacts.end(); ++it) {
-        ROS_INFO("Contact between: %s and %s", it->first.first.c_str(), it->first.second.c_str());
-    }
-
-    // allowed collision matrix
-    collision_detection::AllowedCollisionMatrix acm = planning_scene_->getAllowedCollisionMatrix();
-    robot_state::RobotState copied_state = planning_scene_->getCurrentState();
-
-    collision_detection::CollisionResult::ContactMap::const_iterator it2;
-    for (it2 = collision_result.contacts.begin();
-         it2 != collision_result.contacts.end(); ++it2) {
-        acm.setEntry(it2->first.first, it2->first.second, true);
-    }
-    collision_result.clear();
-    planning_scene_->checkCollision(collision_request, collision_result, copied_state, acm);
-    ROS_INFO_STREAM("Test 5: Current state is " << (collision_result.collision ? "in" : "not in") << " collision");
-}
-
+// TODO: Helferfunktion für Poses
 void PickPlace::define_cartesian_pose() {
     tf::Quaternion q;
 
-    // define start pose before grasp
-    start_pose_.header.frame_id = "root";
-    start_pose_.header.stamp = ros::Time::now();
-    start_pose_.pose.position.x = 0.5;
-    start_pose_.pose.position.y = -0.5;
-    start_pose_.pose.position.z = 0.5;
-
-    q = EulerZYZ_to_Quaternion(-M_PI / 4, M_PI / 2, M_PI);
-    start_pose_.pose.orientation.x = q.x();
-    start_pose_.pose.orientation.y = q.y();
-    start_pose_.pose.orientation.z = q.z();
-    start_pose_.pose.orientation.w = q.w();
-
     // define grasp pose
-    grasp_pose_.header.frame_id = "root";
-    grasp_pose_.header.stamp = ros::Time::now();
+    grasp_pose.header.frame_id = "root";
+    grasp_pose.header.stamp = ros::Time::now();
 
     // Euler_ZYZ (-M_PI/4, M_PI/2, M_PI/2)
-    grasp_pose_.pose.position.x = 0.0 + cup_x;
-    grasp_pose_.pose.position.y = 0.65+ cup_y;
-    grasp_pose_.pose.position.z = 0.6;
+    grasp_pose.pose.position.x = 0.0  + cup_x;
+    grasp_pose.pose.position.y = 0.65 + cup_y;
+    grasp_pose.pose.position.z = 0.6;
 
-    transport_pose_.header.frame_id = "root";
-    transport_pose_.header.stamp = ros::Time::now();
-    transport_pose_.pose.position.x = 0.2;
-    transport_pose_.pose.position.y = 0.5;
-    transport_pose_.pose.position.z = 0.5;
+    transport_pose.header.frame_id = "root";
+    transport_pose.header.stamp = ros::Time::now();
+    transport_pose.pose.position.x = 0;
+    transport_pose.pose.position.y = 0.55;
+    transport_pose.pose.position.z = 0.40;
 
-    q = EulerZYZ_to_Quaternion(M_PI / 4, M_PI / 2, -M_PI / 2);
-    transport_pose_.pose.orientation.x = q.x();
-    transport_pose_.pose.orientation.y = q.y();
-    transport_pose_.pose.orientation.z = q.z();
-    transport_pose_.pose.orientation.w = q.w();
+    q = EulerZYZ_to_Quaternion(M_PI / 4, M_PI / 2, M_PI / 2);
+    transport_pose.pose.orientation.x = q.x();
+    transport_pose.pose.orientation.y = q.y();
+    transport_pose.pose.orientation.z = q.z();
+    transport_pose.pose.orientation.w = q.w();
 
-    // generate_pregrasp_pose(double dist, double azimuth, double polar, double
-    // rot_gripper_z)
-    grasp_pose_ = generate_gripper_align_pose(grasp_pose_, 0.04, M_PI / 4, M_PI / 2, -M_PI / 2);
-    pregrasp_pose_ = generate_gripper_align_pose(grasp_pose_, 0.1, M_PI / 4, M_PI / 2, -M_PI / 2);
-    postgrasp_pose_ = grasp_pose_;
-    postgrasp_pose_.pose.position.z = grasp_pose_.pose.position.z + 0.15;
+    grasp_pose = generate_gripper_align_pose(grasp_pose, 0.04, M_PI / 4, M_PI / 2, M_PI / 2);
+    pregrasp_pose = generate_gripper_align_pose(grasp_pose, 0.1, M_PI / 4, M_PI / 2, M_PI / 2);
+    postgrasp_pose = grasp_pose;
+    postgrasp_pose.pose.position.z = grasp_pose.pose.position.z + 0.15;
 }
 
 void PickPlace::define_joint_values() {
-    start_joint_.resize(joint_names_.size());
-    //    getInvK(start_pose_, start_joint_);
-    start_joint_[0] = M_PI * 1.0 / 2.0;
-    start_joint_[1] = M_PI * 1.0 / 3.0; // pi = gerade ausstrecken
-    start_joint_[2] = M_PI * 1.0 / 3.0; // pi = gerade ausstrecken
-    start_joint_[3] = M_PI * -3.0 / 2.0;
-    start_joint_[4] = M_PI * 1.0 / 2.0;
-    start_joint_[5] = M_PI * 1.0 / 2.0;
-
-    grasp_joint_.resize(joint_names_.size());
-    //    getInvK(grasp_pose, grasp_joint_);
-    grasp_joint_[0] = 144.0 * M_PI / 180.0;
-    grasp_joint_[1] = 256.5 * M_PI / 180.0;
-    grasp_joint_[2] = 91.3 * M_PI / 180.0;
-    grasp_joint_[3] = 163.8 * M_PI / 180.0;
-    grasp_joint_[4] = 88.5 * M_PI / 180.0;
-    grasp_joint_[5] = 151.3 * M_PI / 180.0;
-
-    pregrasp_joint_.resize(joint_names_.size());
-    //    getInvK(pregrasp_pose, pregrasp_joint_);
-    pregrasp_joint_[0] = 145.4 * M_PI / 180.0;
-    pregrasp_joint_[1] = 253.7 * M_PI / 180.0;
-    pregrasp_joint_[2] = 67.0 * M_PI / 180.0;
-    pregrasp_joint_[3] = 151.0 * M_PI / 180.0;
-    pregrasp_joint_[4] = 118.5 * M_PI / 180.0;
-    pregrasp_joint_[5] = 141.7 * M_PI / 180.0;
-
-    //    postgrasp_joint_ = pregrasp_joint_;
-    postgrasp_joint_.resize(joint_names_.size());
-    //    getInvK(pregrasp_pose, postdefinegrasp_joint_);
-    postgrasp_joint_[0] = 144 * M_PI / 180.0;
-    postgrasp_joint_[1] = 249 * M_PI / 180.0;
-    postgrasp_joint_[2] = 88 * M_PI / 180.0;
-    postgrasp_joint_[3] = 165 * M_PI / 180.0;
-    postgrasp_joint_[4] = 83 * M_PI / 180.0;
-    postgrasp_joint_[5] = 151 * M_PI / 180.0;
+    start_joint.resize(joint_names_.size());
+    start_joint[0] = M_PI * 1.0 / 2.0;
+    start_joint[1] = M_PI * 1.0 / 3.0; // pi = gerade ausstrecken
+    start_joint[2] = M_PI * 1.0 / 2.0; // pi = gerade ausstrecken
+    start_joint[3] = 0;
+    start_joint[4] = M_PI;
+    start_joint[5] = M_PI;
 }
 
 /**
@@ -387,9 +308,8 @@ void PickPlace::define_joint_values() {
  * the target pose. Normally it is a pre_grasp/post_realease pose, where gripper
  * axis (last joint axis) is pointing to the object (target_pose).
  */
-geometry_msgs::PoseStamped PickPlace::generate_gripper_align_pose(
-        geometry_msgs::PoseStamped targetpose_msg, double dist, double azimuth,
-        double polar, double rot_gripper_z) {
+ // TODO: inhalt prüfen
+geometry_msgs::PoseStamped PickPlace::generate_gripper_align_pose(geometry_msgs::PoseStamped targetpose_msg, double dist, double azimuth, double polar, double rot_gripper_z) {
     geometry_msgs::PoseStamped pose_msg;
 
     pose_msg.header.frame_id = "root";
@@ -402,7 +322,7 @@ geometry_msgs::PoseStamped PickPlace::generate_gripper_align_pose(
 
     // computer the orientation of gripper w.r.t. fixed world (root) reference
     // frame. The gripper (z axis) should point(open) to the grasp_pose.
-    tf::Quaternion q = EulerZYZ_to_Quaternion(azimuth, polar, rot_gripper_z);
+    tf::Quaternion q = EulerZYZ_to_Quaternion(azimuth, polar, rot_gripper_z); // TODO: convert to zxz
 
     pose_msg.pose.position.x = targetpose_msg.pose.position.x + delta_x;
     pose_msg.pose.position.y = targetpose_msg.pose.position.y + delta_y;
@@ -425,45 +345,24 @@ geometry_msgs::PoseStamped PickPlace::generate_gripper_align_pose(
     return pose_msg;
 }
 
-void PickPlace::check_constrain() {
-    moveit_msgs::Constraints grasp_constrains = group_->getPathConstraints();
-    bool has_constrain = false;
-    ROS_INFO("check constrain result: ");
-    if (!grasp_constrains.orientation_constraints.empty()) {
-        has_constrain = true;
-        ROS_INFO("Has orientation constrain. ");
-    }
-    if (!grasp_constrains.position_constraints.empty()) {
-        has_constrain = true;
-        ROS_INFO("Has position constrain. ");
-    }
-    if (has_constrain == false) {
-        ROS_INFO("No constrain. ");
-    }
-}
-
 void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroupInterface &group) {
     int count = 0;
     moveit::planning_interface::MoveGroupInterface::Plan my_plan;
     result_ = false;
 
     // try to find a success plan.
-    double plan_time;
-    while (result_ == false && count < 5) {
-        count++;
-        plan_time = 20 + count * 10;
-        ROS_INFO("Setting plan time to %f sec", plan_time);
-        group.setPlanningTime(plan_time);
-        result_ = (group.plan(my_plan) == moveit_msgs::MoveItErrorCodes::SUCCESS);
-        std::cout << "at attempt: " << count << std::endl;
-        ros::WallDuration(0.1).sleep();
-    }
+    double plan_time = 60;
+    ROS_INFO("Setting plan time to %f sec", plan_time);
+    group.setPlanningTime(plan_time);
+    result_ = (group.plan(my_plan) == moveit_msgs::MoveItErrorCodes::SUCCESS);
+    ros::WallDuration(0.1).sleep();
 
     if (result_ == true) {
         group.execute(my_plan);
         ros::WallDuration(1.0).sleep();
     } else {
-        std::cerr << "Exit since plan failed until reach maximum attempt: " << count << std::endl;
+        std::cerr << "Exit since plan failed" << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -473,9 +372,9 @@ void PickPlace::setup_orientation_constraint(geometry_msgs::Pose target){
     ocm.link_name = robot_type_ + "_end_effector";
     ocm.header.frame_id = "root";
     ocm.orientation = target.orientation;
-    ocm.absolute_x_axis_tolerance = 2*M_PI;
-    ocm.absolute_y_axis_tolerance = 2*M_PI;
-    ocm.absolute_z_axis_tolerance = M_PI/10;
+    ocm.absolute_x_axis_tolerance = M_PI/10;
+    ocm.absolute_y_axis_tolerance = M_PI/10;
+    ocm.absolute_z_axis_tolerance = 2*M_PI;
     ocm.weight = 0.5;
     grasp_constrains.orientation_constraints.push_back(ocm);
     group_->setPathConstraints(grasp_constrains);
@@ -487,20 +386,18 @@ bool PickPlace::my_pick() {
     gripper_group_->setNamedTarget("Open");
     gripper_group_->move();
 
-    group_->setJointValueTarget(start_joint_);
+    group_->setJointValueTarget(start_joint);
     evaluate_plan(*group_);
+
     ROS_INFO_STREAM("Motion planning in cartesian space without obstacles ...");
-    clear_workscene();
     build_workscene();
     ros::WallDuration(0.1).sleep();
     ROS_INFO_STREAM("Planning to go to pre-grasp position ...");
-    group_->setPoseTarget(pregrasp_pose_);
+    group_->setPoseTarget(pregrasp_pose);
     evaluate_plan(*group_);
 
-    ROS_INFO_STREAM("Opening gripper ...");
-    gripper_action(0.0);
     ROS_INFO_STREAM("Approaching grasp position ...");
-    group_->setPoseTarget(grasp_pose_);
+    group_->setPoseTarget(grasp_pose);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Grasping ...");
@@ -509,30 +406,22 @@ bool PickPlace::my_pick() {
 
     replaceTable(co_, pub_co_, planning_scene_msg_,"table", 0, 1.5);
 
-    setup_orientation_constraint(postgrasp_pose_.pose);
-    ROS_INFO_STREAM("Planning to return to start position  ...");
-    group_->setPoseTarget(postgrasp_pose_);
+    setup_orientation_constraint(postgrasp_pose.pose);
+    ROS_INFO_STREAM("Planning to return to post grasp  ...");
+    group_->setPoseTarget(postgrasp_pose);
     evaluate_plan(*group_);
 
-    ROS_INFO_STREAM("Retruning to start pose ...");
-    setup_orientation_constraint(transport_pose_.pose);
-    group_->setPoseTarget(transport_pose_);
+    ROS_INFO_STREAM("Retruning to transport pose ...");
+    setup_orientation_constraint(transport_pose.pose);
+    group_->setPoseTarget(transport_pose);
+//    group_->setJointValueTarget(start_joint);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Releasing gripper ...");
     gripper_action(0.0);
 
     clear_workscene();
-
-    ROS_INFO_STREAM("Press any key to quit ...");
-    std::cin >> pause_;
     return true;
-}
-
-void PickPlace::getInvK(geometry_msgs::Pose &eef_pose,
-                        std::vector<double> &joint_value) {
-    // TODO: transform cartesian command to joint space, and alway motion plan in
-    // joint space.
 }
 
 int main(int argc, char **argv) {

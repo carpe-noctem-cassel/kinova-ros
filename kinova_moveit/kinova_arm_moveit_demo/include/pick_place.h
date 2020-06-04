@@ -81,7 +81,7 @@ namespace kinova
         std::string robot_type_;
         bool robot_connected_;
         int step;
-        int cup_x, cup_y;
+        float cup_x, cup_y;
 
         // update current state and pose
         boost::mutex mutex_state_;
@@ -91,17 +91,14 @@ namespace kinova
 
 
         // define pick_place joint value and pose
-        std::vector<double> start_joint_;
-        std::vector<double> grasp_joint_;
-        std::vector<double> pregrasp_joint_;
-        std::vector<double> postgrasp_joint_;
+        std::vector<double> start_joint;
 
-        geometry_msgs::PoseStamped start_pose_;
-        geometry_msgs::PoseStamped grasp_pose_;
-        geometry_msgs::PoseStamped can_pose_;
-        geometry_msgs::PoseStamped pregrasp_pose_;
-        geometry_msgs::PoseStamped postgrasp_pose_;
-        geometry_msgs::PoseStamped transport_pose_;
+        geometry_msgs::PoseStamped start_pose;
+        geometry_msgs::PoseStamped grasp_pose;
+        geometry_msgs::PoseStamped can_pose;
+        geometry_msgs::PoseStamped pregrasp_pose;
+        geometry_msgs::PoseStamped postgrasp_pose;
+        geometry_msgs::PoseStamped transport_pose;
 
 
         void build_workscene();

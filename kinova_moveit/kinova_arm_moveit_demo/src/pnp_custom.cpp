@@ -86,6 +86,8 @@ PickPlace::PickPlace(ros::NodeHandle &nh) : nh_(nh) {
     }
 
     // set pre-defined joint and pose values.
+    std::cout << "Cup placement(x y): ";
+    std::cin >> cup_x >> cup_y;
     define_cartesian_pose();
     define_joint_values();
 
@@ -192,15 +194,14 @@ void PickPlace::build_workscene() {
 
     replaceObject(co_, pub_co_, planning_scene_msg_, "floor", shape_msgs::SolidPrimitive::BOX, Position(0, 0, -0.03 / 2.0), {2.4, 2.4, 0.03});
 
-    replaceTable(co_, pub_co_, planning_scene_msg_);
+    float x, y;
+    std::cout << "Table position: ";
+    std::cin >> x >> y;
+    replaceTable(co_, pub_co_, planning_scene_msg_, "table", x, 0.9 + y);
 
     replaceObject(co_, pub_co_, planning_scene_msg_, "laser", shape_msgs::SolidPrimitive::CYLINDER, Position(-0.05, 0, 0.3), {0.2, 0.1});
 
-    std::cout << "Cup placement(x y): ";
-    std::cin >> cup_x >> cup_y;
-
     replaceObject(co_, pub_co_, planning_scene_msg_, "cup", shape_msgs::SolidPrimitive::CYLINDER, Position(cup_x, 0.65 + cup_y, 0.6), {0.1, 0.01});
-
 
     ros::WallDuration(0.1).sleep();
     std::cout << "Setup COMPLETE!\n";
@@ -351,13 +352,21 @@ void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroupInterface &gr
     result_ = false;
 
     // try to find a success plan.
-    double plan_time = 60;
+    double plan_time = 30;
     ROS_INFO("Setting plan time to %f sec", plan_time);
     group.setPlanningTime(plan_time);
-    result_ = (group.plan(my_plan) == moveit_msgs::MoveItErrorCodes::SUCCESS);
-    ros::WallDuration(0.1).sleep();
+    bool timeout = false;
+    for(int i = 0; i < 5; ++i) {
+        auto res = group.plan(my_plan);
+        result_ = (res == moveit_msgs::MoveItErrorCodes::SUCCESS);
+        timeout = (res == moveit_msgs::MoveItErrorCodes::TIMED_OUT);
+        ros::WallDuration(0.1).sleep();
+        if(!timeout)
+            break;
+        ROS_INFO("Planning timed out! Retrying.");
+    }
 
-    if (result_ == true) {
+    if (result_) {
         group.execute(my_plan);
         ros::WallDuration(1.0).sleep();
     } else {

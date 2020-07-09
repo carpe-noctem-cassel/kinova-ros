@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<robot name="myfirst">
+  <link name="base_link">
+  </link>
+<!--<xacro:include filename="$(find turtlebot_description)/urdf/sensors/kinect.urdf.xacro"/>-->
+</robot>

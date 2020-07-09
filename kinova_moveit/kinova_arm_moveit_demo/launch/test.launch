@@ -1,0 +1,13 @@
+<launch>
+  <arg name="sim" default="true"/>
+
+  <group unless="$(arg sim)">
+    <include file="$(find freenect_launch)/launch/freenect.launch" >
+      <arg name="num_worker_threads" value="1"/>
+      <!--<arg name="" value=""/>-->
+    </include>
+  </group>
+
+  <!--<node name="kinect" pkg="kinova_ros">
+</node>-->
+</launch>

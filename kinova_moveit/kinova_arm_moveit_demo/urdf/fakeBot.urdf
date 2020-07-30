@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<robot name="myfirst">
-  <link name="base_link">
-  </link>
-<!--<xacro:include filename="$(find turtlebot_description)/urdf/sensors/kinect.urdf.xacro"/>-->
+<robot name="fakeBot">
+    <link name="world"/>
+    <include filename="$(find common_sensors)/urdf/sensors/kinect.urdf.xacro" />
+    <sensor_kinect parent="world"/>
 </robot>

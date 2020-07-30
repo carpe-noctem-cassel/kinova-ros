@@ -8,6 +8,27 @@
     </include>
   </group>
 
-  <!--<node name="kinect" pkg="kinova_ros">
-</node>-->
+  <group if="$(arg sim)">
+    <arg name="debug" default="true" />
+    <arg name="gui" default="true" />
+    <arg name="pause" default="false" />
+    <arg name="world" default="$(find kinova_arm_moveit_demo)/world/empty_world.world" />
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+      <arg name="world_name" value="$(arg world)" />
+      <arg name="debug" value="$(arg debug)" />
+      <arg name="gui" value="$(arg gui)" />
+      <arg name="paused" value="$(arg pause)" />
+      <arg name="use_sim_time" value="true" />
+      <arg name="verbose" value="true´"/>
+      
+    </include>
+
+    <param name="robot_description" command="$(find xacro)/xacro.py $(find kinova_arm_moveit_demo)/urdf/fakeBot.urdf" />
+    <arg name="x" default="0"/>
+    <arg name="y" default="0"/>
+    <arg name="z" default="0.5"/>
+    <node name="robot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-urdf -param robot_description -model fakeBot -x $(arg x) -y $(arg y) -z $(arg z)" />
+  </group>
 </launch>

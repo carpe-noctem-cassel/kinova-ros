@@ -20,8 +20,7 @@
       <arg name="gui" value="$(arg gui)" />
       <arg name="paused" value="$(arg pause)" />
       <arg name="use_sim_time" value="true" />
-      <arg name="verbose" value="true´"/>
-      
+      <arg name="verbose" value="true"/>
     </include>
 
     <param name="robot_description" command="$(find xacro)/xacro.py $(find kinova_arm_moveit_demo)/urdf/fakeBot.urdf" />

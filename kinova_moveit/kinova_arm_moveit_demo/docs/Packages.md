@@ -23,7 +23,8 @@ sudo apt -y install git \
                     ros-melodic-moveit-ros \
                     ros-melodic-trac-ik-kinematics-plugin \
                     ros-melodic-moveit-planners-ompl \
-                    ros-melodic-moveit-fake-controller-manager
+                    ros-melodic-moveit-fake-controller-manager \
+                    ros-melodic-tf
 ```
 
 ## Github repos

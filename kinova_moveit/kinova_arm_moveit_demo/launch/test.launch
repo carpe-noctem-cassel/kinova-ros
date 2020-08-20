@@ -20,14 +20,19 @@
       <arg name="gui" value="$(arg gui)" />
       <arg name="paused" value="$(arg pause)" />
       <arg name="use_sim_time" value="true" />
-      <arg name="verbose" value="true"/>
+      <arg name="verbose" value="true "/>
     </include>
 
-    <param name="robot_description" command="$(find xacro)/xacro.py $(find kinova_arm_moveit_demo)/urdf/fakeBot.urdf" />
+    <param name="camera_description" command="$(find xacro)/xacro.py $(find kinova_arm_moveit_demo)/urdf/fakeBot.urdf" />
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
     <arg name="z" default="0.5"/>
     <node name="robot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
-          args="-urdf -param robot_description -model fakeBot -x $(arg x) -y $(arg y) -z $(arg z)" />
+          args="-urdf -param camera_description -model fakeBot -x $(arg x) -y $(arg y) -z $(arg z)" />
+
+    <include file="$(find j2n6s300_moveit_config)/launch/j2n6s300_virtual_robot_demo.launch">
+    </include>
+    <node pkg="tf" type="static_transform_publisher" name="depth_cam_tf" args="0 -0.02 0 0 0 0 j2n6s300_link_4 camera_depth_optical_frame 100" />
   </group>
+
 </launch>

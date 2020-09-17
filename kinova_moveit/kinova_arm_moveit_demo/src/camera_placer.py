@@ -16,7 +16,7 @@ if __name__ == '__main__':
     listener = tf.TransformListener()
     set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
 
-    rate = rospy.Rate(100.0)
+    rate = rospy.Rate(10.0)
 
     rospy.wait_for_service('/gazebo/set_model_state')
     while not rospy.is_shutdown():
@@ -48,7 +48,7 @@ if __name__ == '__main__':
         except:
           print "no state set"
 
-        print "Tralslation ", trans
-        print "Rotation    ", rot
+        # print "Tralslation ", trans
+        # print "Rotation    ", rot
 
         rate.sleep()

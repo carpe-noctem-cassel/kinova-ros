@@ -32,7 +32,7 @@
 
     <include file="$(find j2n6s300_moveit_config)/launch/j2n6s300_virtual_robot_demo.launch">
     </include>
-    <node pkg="tf" type="static_transform_publisher" name="depth_cam_tf" args="0 -0.02 0 0 0 0 j2n6s300_link_4 camera_depth_optical_frame 100" />
+    <node pkg="tf" type="static_transform_publisher" name="depth_cam_tf" args="0 -0.02 0 1.57076 0 -3.14159 j2n6s300_link_4 camera_depth_optical_frame 100" />
   </group>
 
 </launch>

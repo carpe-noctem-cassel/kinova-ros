@@ -1,6 +1,15 @@
 <?xml version="1.0"?>
 <robot name="fakeBot">
     <link name="world"/>
+    <link name="base_link">
+        <gravity>0</gravity>
+    </link>
+
+    <joint name="movement" type="floating">
+        <parent link="world"/>
+        <child link="base_link"/>
+    </joint>
+    
     <include filename="$(find common_sensors)/urdf/sensors/kinect.urdf.xacro" />
-    <sensor_kinect parent="world"/>
+    <sensor_kinect parent="base_link" />
 </robot>

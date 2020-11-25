@@ -32,8 +32,8 @@
 
     <include file="$(find j2n6s300_moveit_config)/launch/j2n6s300_virtual_robot_demo.launch">
     </include>
-    <!--                                                                       x y z y p r -->
-    <node pkg="tf" type="static_transform_publisher" name="depth_cam_tf" args="0 0 0 M_PI 0 0 j2n6s300_link_4 camera_depth_optical_frame 100" />
+    <!-- To match pointcloud in rviz                                           x y z y p r -->
+    <node pkg="tf" type="static_transform_publisher" name="depth_cam_tf" args="0 0 0 M_PI 0 0 j2n6s300_link_5 camera_depth_optical_frame 100" />
   </group>
 
 </launch>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python  
+#!/usr/bin/env python2
 import roslib
 roslib.load_manifest('kinova_arm_moveit_demo')
 import rospy
@@ -7,20 +7,12 @@ import tf
 import geometry_msgs.msg
 from gazebo_msgs.msg import ModelState 
 from gazebo_msgs.srv import SetModelState
-
-
-def euler_to_quaternion(roll, pitch, yaw):
-
-        qx = math.sin(roll/2) * math.cos(pitch/2) * math.cos(yaw/2) - math.cos(roll/2) * math.sin(pitch/2) * math.sin(yaw/2)
-        qy = math.cos(roll/2) * math.sin(pitch/2) * math.cos(yaw/2) + math.sin(roll/2) * math.cos(pitch/2) * math.sin(yaw/2)
-        qz = math.cos(roll/2) * math.cos(pitch/2) * math.sin(yaw/2) - math.sin(roll/2) * math.sin(pitch/2) * math.cos(yaw/2)
-        qw = math.cos(roll/2) * math.cos(pitch/2) * math.cos(yaw/2) + math.sin(roll/2) * math.sin(pitch/2) * math.sin(yaw/2)
-
-        return [qx, qy, qz, qw]
+import numpy as np
+import quaternion
+import scipy.spatial.transform.rotation
 
 
 if __name__ == '__main__':
-    print "Hello World"
     rospy.init_node('camera_tf_listener')
 
     listener = tf.TransformListener()
@@ -28,32 +20,38 @@ if __name__ == '__main__':
 
     rate = rospy.Rate(100.0)
 
-    # math.pi / -2     math.pi / 2    math.pi / -4
-    transform_quaternion = euler_to_quaternion(0, 0, (math.pi / -15.0))
-
     rospy.wait_for_service('/gazebo/set_model_state')
     while not rospy.is_shutdown():
         try:
-            (trans,rot) = listener.lookupTransform('/root', '/j2n6s300_link_4', rospy.Time(0))
+            (trans,rot) = listener.lookupTransform('/root', '/j2n6s300_link_5', rospy.Time(0))
         except tf.LookupException:
-          print "No lookup possible"
           continue
         except tf.ConnectivityException:
-          print "Bad connection"
+          print("Bad connection")
           continue
         except tf.ExtrapolationException:
-          print "fail"
+          print("fail")
           continue
+
+        # Match arm and camera
+        rot = np.quaternion(rot[0], rot[1], rot[2], rot[3])
+        tmp = scipy.spatial.transform.rotation.Rotation.from_euler("xyz", [np.pi, - np.pi / 4, 0], degrees=False).as_quat()
+        tmp = np.quaternion(tmp[0], tmp[1], tmp[2], tmp[3])
+        tmp = tmp * rot
+        tmp = quaternion.as_float_array(tmp)
+
+
+        print(rot, tmp)
 
         state_msg = ModelState()
         state_msg.model_name = 'fakeBot'
         state_msg.pose.position.x = trans[0]
         state_msg.pose.position.y = trans[1]
         state_msg.pose.position.z = trans[2]
-        state_msg.pose.orientation.x = rot[0] * transform_quaternion[0]
-        state_msg.pose.orientation.y = rot[1] * transform_quaternion[1]
-        state_msg.pose.orientation.z = rot[2] * transform_quaternion[2]
-        state_msg.pose.orientation.w = rot[3] * transform_quaternion[3]
+        state_msg.pose.orientation.x = tmp[0]
+        state_msg.pose.orientation.y = tmp[1]
+        state_msg.pose.orientation.z = tmp[2]
+        state_msg.pose.orientation.w = tmp[3]
         print("Name:{}: {} {} {} | {} {} {} {}".format(state_msg.model_name,
         state_msg.pose.position.x,
         state_msg.pose.position.y,
@@ -67,7 +65,7 @@ if __name__ == '__main__':
           resp = set_state( state_msg )
           # print resp
         except:
-          print "no state set"
+          print("no state set")
 
         # print "Tralslation ", trans
         # print "Rotation    ", rot

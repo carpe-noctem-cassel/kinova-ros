@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <package>
   <name>kinova_arm_moveit_demo</name>
-  <version>0.6.3</version>
-  <description>The moveit_motion_plan package</description>
+  <version>0.0.1</version>
+  <description>A cup picker from Carpe Noctem Cassel</description>
   <license>BSD</license>
 
-  <author email="lzhao@kinova.ca">Longfei Zhao</author>
-  <maintainer email="lzhao@kinova.ca">Longfei Zhao</maintainer>
+  <author email="stefan_schmelz@gmx.net">Stefan Schmelz</author>
+  <maintainer email="stefan_schmelz@gmx.net">Stefan Schmelz</maintainer>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -26,7 +26,7 @@
   <run_depend>moveit_ros_planning_interface</run_depend>
   <run_depend>moveit_ros_perception</run_depend>
   <run_depend>interactive_markers</run_depend>
-  <run_depend>pr2_arm_kinematics</run_depend>
+  <run_depend>pr2_arm_kinematics</run_depend>´
   <run_depend>pr2_moveit_config</run_depend>
   <run_depend>pr2_moveit_plugins</run_depend>
   <run_depend>kinova_driver</run_depend>

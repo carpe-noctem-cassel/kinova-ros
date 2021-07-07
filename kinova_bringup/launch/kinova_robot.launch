@@ -6,14 +6,17 @@
 	<arg name="kinova_robotSerial" default="not_set" />
 
   <!-- If the node handles multiple robots uncomment this and configure /config/multiple_robots.yaml" -->
-	<rosparam file="$(find kinova_bringup)/launch/config/multiple_robots.yaml" command="load" />
+	<!--<rosparam file="$(find kinova_bringup)/launch/config/multiple_robots.yaml" command="load" /> -->
 
   <node name="$(arg kinova_robotName)_driver" pkg="kinova_driver" type="kinova_arm_driver" output="screen" cwd="node" args="$(arg kinova_robotType)">
     <rosparam file="$(find kinova_bringup)/launch/config/robot_parameters.yaml" command="load" />
     <param name="serial_number" value="$(arg kinova_robotSerial)" />   
     <param name="robot_name" value="$(arg kinova_robotName)" />   
-    <param name="robot_type" value="$(arg kinova_robotType)" />   
+    <param name="robot_type" value="$(arg kinova_robotType)" />
+    <!--<remap from="/$(arg kinova_robotName)_driver/out/joint_state" to="joint_states"/>-->
   </node>
+
+  <node name="transformer" pkg="topic_tools" type="relay" args="/j2n6s300_driver/out/joint_state /joint_states"/>
     
   <group unless="$(arg use_urdf)">
     <node name="$(arg kinova_robotName)_tf_updater" pkg="kinova_driver" type="kinova_tf_updater" output="screen" cwd="node" args="$(arg kinova_robotType)">
@@ -27,7 +30,7 @@
     <node name="$(arg kinova_robotName)_state_publisher"
            pkg="robot_state_publisher"
           type="robot_state_publisher">
-      <remap from="joint_states" to="/$(arg kinova_robotName)_driver/out/joint_state"/>
+     <remap from="joint_states" to="/$(arg kinova_robotName)_driver/out/joint_state"/>
     </node>
   </group>
 

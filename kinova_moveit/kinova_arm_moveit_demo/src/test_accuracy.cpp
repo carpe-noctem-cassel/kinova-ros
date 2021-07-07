@@ -434,25 +434,25 @@ void PickPlace::define_cartesian_pose()
     start_pose_.pose.orientation.w = q.w();
 
     // define grasp pose
-    grasp_pose_.header.frame_id = "root";
-    grasp_pose_.header.stamp  = ros::Time::now();
+    grasp_pose.header.frame_id = "root";
+    grasp_pose.header.stamp  = ros::Time::now();
 
     // Euler_ZYZ (-M_PI/4, M_PI/2, M_PI/2)
-    grasp_pose_.pose.position.x = 0.0;
-    grasp_pose_.pose.position.y = 0.6;
-    grasp_pose_.pose.position.z = 0.3;
+    grasp_pose.pose.position.x = 0.0;
+    grasp_pose.pose.position.y = 0.6;
+    grasp_pose.pose.position.z = 0.3;
 
     q = EulerZYZ_to_Quaternion(M_PI/4, M_PI/2, M_PI);
-    grasp_pose_.pose.orientation.x = q.x();
-    grasp_pose_.pose.orientation.y = q.y();
-    grasp_pose_.pose.orientation.z = q.z();
-    grasp_pose_.pose.orientation.w = q.w();
+    grasp_pose.pose.orientation.x = q.x();
+    grasp_pose.pose.orientation.y = q.y();
+    grasp_pose.pose.orientation.z = q.z();
+    grasp_pose.pose.orientation.w = q.w();
 
     // generate_pregrasp_pose(double dist, double azimuth, double polar, double rot_gripper_z)
-    grasp_pose_= generate_gripper_align_pose(grasp_pose_, 0.03999, M_PI/4, M_PI/2, M_PI);
-    pregrasp_pose_ = generate_gripper_align_pose(grasp_pose_, 0.1, M_PI/4, M_PI/2, M_PI);
-    postgrasp_pose_ = grasp_pose_;
-    postgrasp_pose_.pose.position.z = grasp_pose_.pose.position.z + 0.05;
+    grasp_pose= generate_gripper_align_pose(grasp_pose, 0.03999, M_PI/4, M_PI/2, M_PI);
+    pregrasp_pose = generate_gripper_align_pose(grasp_pose, 0.1, M_PI/4, M_PI/2, M_PI);
+    postgrasp_pose = grasp_pose;
+    postgrasp_pose.pose.position.z = grasp_pose.pose.position.z + 0.05;
 
 }
 
@@ -870,11 +870,11 @@ bool PickPlace::my_pick()
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Planning to go to pre-grasp position ...");
-    group_->setJointValueTarget(pregrasp_pose_);
+    group_->setJointValueTarget(pregrasp_pose);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Approaching grasp position ...");
-    group_->setJointValueTarget(grasp_pose_);
+    group_->setJointValueTarget(grasp_pose);
     evaluate_plan(*group_);
 
     add_attached_obstacle();
@@ -909,11 +909,11 @@ bool PickPlace::my_pick()
 
     ros::WallDuration(0.1).sleep();
     ROS_INFO_STREAM("Planning to go to pre-grasp position ...");
-    group_->setPoseTarget(pregrasp_pose_);
+    group_->setPoseTarget(pregrasp_pose);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Planning to go to grasp position ...");
-    group_->setPoseTarget(grasp_pose_);
+    group_->setPoseTarget(grasp_pose);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Press any key to grasp ...");
@@ -941,11 +941,11 @@ bool PickPlace::my_pick()
 
     ros::WallDuration(0.1).sleep();
     ROS_INFO_STREAM("Planning to go to pre-grasp position ...");
-    group_->setPoseTarget(pregrasp_pose_);
+    group_->setPoseTarget(pregrasp_pose);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Planning to go to grasp position ...");
-    group_->setPoseTarget(grasp_pose_);
+    group_->setPoseTarget(grasp_pose);
     evaluate_plan(*group_);
 
     ROS_INFO_STREAM("Press any key to grasp ...");
@@ -954,7 +954,7 @@ bool PickPlace::my_pick()
     add_attached_obstacle();
     gripper_action(0.75*FINGER_MAX); // partially close
 
-    setup_constrain(grasp_pose_.pose, true, false);
+    setup_constrain(grasp_pose.pose, true, false);
 
     ROS_INFO_STREAM("Planning to go to start position  ...");
     group_->setPoseTarget(start_pose_);

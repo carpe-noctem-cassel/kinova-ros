@@ -7,25 +7,25 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
-             COMPONENTS
-             moveit_core
-             moveit_ros_planning
-             moveit_ros_planning_interface
-             pluginlib
-             cmake_modules
-             geometric_shapes
-	     tf
-)
+        COMPONENTS
+        moveit_core
+        moveit_ros_planning
+        moveit_ros_planning_interface
+        pluginlib
+        cmake_modules
+        geometric_shapes
+        tf
+        )
 
 find_package(Boost REQUIRED system filesystem date_time thread)
 
 catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS 
-    moveit_core
-    moveit_ros_planning_interface
-    interactive_markers
-    tf
+        INCLUDE_DIRS include
+        CATKIN_DEPENDS
+        moveit_core
+        moveit_ros_planning_interface
+        interactive_markers
+        tf
 )
 find_package(Eigen3 REQUIRED)
 
@@ -35,8 +35,8 @@ find_package(kinova_driver REQUIRED)
 ## Build ##
 ###########
 include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
+        include
+        ${catkin_INCLUDE_DIRS}
 )
 
 include_directories(SYSTEM ${Boost_INCLUDE_DIR} ${EIGEN_INCLUDE_DIRS})
@@ -49,18 +49,25 @@ add_executable(motion_plan src/motion_plan.cpp)
 target_link_libraries(motion_plan ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
 install(TARGETS motion_plan DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+add_executable(test_mp src/test_mp.cpp)
+target_link_libraries(test_mp ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
+install(TARGETS test_mp DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 add_executable(work_scene src/work_scene.cpp)
 target_link_libraries(work_scene ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
 install(TARGETS work_scene DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
-add_executable(pick_place src/pick_place.cpp include/pick_place.h)
-target_link_libraries(pick_place ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
-install(TARGETS pick_place DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+#
+#add_executable(pick_place src/pick_place.cpp include/pick_place.h)
+#target_link_libraries(pick_place ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
+#install(TARGETS pick_place DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 add_executable(test_accuracy src/test_accuracy.cpp include/test_accuracy.h)
 target_link_libraries(test_accuracy ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
 install(TARGETS test_accuracy DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+add_executable(pnp src/pnp_custom.cpp include/pick_place.h include/object_factory.h src/object_factory.cpp)
+target_link_libraries(pnp ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
+install(TARGETS pnp DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 #get_cmake_property(_variableNames VARIABLES)
 #foreach (_variableName ${_variableNames})

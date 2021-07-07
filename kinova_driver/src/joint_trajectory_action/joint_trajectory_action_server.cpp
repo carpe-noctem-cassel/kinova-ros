@@ -286,11 +286,11 @@ int main(int argc, char** argv)
     {
         robot_name = argv[argc-1];
     }
-    ros::AsyncSpinner spinner(1);
+    ros::AsyncSpinner spinner(2);
     spinner.start();
 
     kinova::JointTrajectoryActionController jtac(node, robot_name);
 
-    ros::spin();
+    ros::waitForShutdown();
     return 0;
 }
